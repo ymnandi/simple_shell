@@ -1,94 +1,93 @@
 #include "shell.h"
 
 /**
- * copy_environment - returns the string array copy of our environment
- * @information: Structure containing potential arguments. Used to maintain
+ * get_environ - returns the string array copy of our environ
+ * @info: Structure containing potential arguments. Used to maintain
  *          constant function prototype.
- * Return: String array containing environment variables
+ * Return: Always 0
  */
-char **copy_environment(info_t *information)
+char **get_environ(info_t *info)
 {
-	if (!information->environment || information->environment_changed)
+	if (!info->environ || info->env_changed)
 	{
-		information->environment = list_to_strings(information->environment_list);
-		information->environment_changed = 0;
+		info->environ = list_to_strings(info->env);
+		info->env_changed = 0;
 	}
 
-	return (information->environment);
+	return (info->environ);
 }
 
 /**
- * remove_environment_variable - Remove an environment variable
- * @information: Structure containing potential arguments. Used to maintain
+ * _unsetenv - Remove an environment variable
+ * @info: Structure containing potential arguments. Used to maintain
  *        constant function prototype.
- * @variable: the string environment variable property
- * Return: 1 on delete, 0 otherwise
+ *  Return: 1 on delete, 0 otherwise
+ * @var: the string env var property
  */
-int remove_environment_variable(info_t *information, char *variable)
+int _unsetenv(info_t *info, char *var)
 {
-	list_t *node = information->environment_list;
-	size_t index = 0;
-	char *position;
+	list_t *node = info->env;
+	size_t i = 0;
+	char *p;
 
-	if (!node || !variable)
+	if (!node || !var)
 		return (0);
 
 	while (node)
 	{
-		position = starts_with(node->string, variable);
-		if (position && *position == '=')
+		p = starts_with(node->str, var);
+		if (p && *p == '=')
 		{
-			information->environment_changed = delete_node_at_index(&(information->environment_list), index);
-			index = 0;
-			node = information->environment_list;
+			info->env_changed = delete_node_at_index(&(info->env), i);
+			i = 0;
+			node = info->env;
 			continue;
 		}
 		node = node->next;
-		index++;
+		i++;
 	}
-	return (information->environment_changed);
+	return (info->env_changed);
 }
 
 /**
- * set_environment_variable - Initialize a new environment variable,
+ * _setenv - Initialize a new environment variable,
  *             or modify an existing one
- * @information: Structure containing potential arguments. Used to maintain
+ * @info: Structure containing potential arguments. Used to maintain
  *        constant function prototype.
- * @variable: the string environment variable property
- * @value: the string environment variable value
- * Return: Always 0
+ * @var: the string env var property
+ * @value: the string env var value
+ *  Return: Always 0
  */
-int set_environment_variable(info_t *information, char *variable, char *value)
+int _setenv(info_t *info, char *var, char *value)
 {
-	char *buffer = NULL;
+	char *buf = NULL;
 	list_t *node;
-	char *position;
+	char *p;
 
-	if (!variable || !value)
+	if (!var || !value)
 		return (0);
 
-	buffer = malloc(_strlen(variable) + _strlen(value) + 2);
-	if (!buffer)
+	buf = malloc(_strlen(var) + _strlen(value) + 2);
+	if (!buf)
 		return (1);
-	_strcpy(buffer, variable);
-	_strcat(buffer, "=");
-	_strcat(buffer, value);
-	node = information->environment_list;
+	_strcpy(buf, var);
+	_strcat(buf, "=");
+	_strcat(buf, value);
+	node = info->env;
 	while (node)
 	{
-		position = starts_with(node->string, variable);
-		if (position && *position == '=')
+		p = starts_with(node->str, var);
+		if (p && *p == '=')
 		{
-			free(node->string);
-			node->string = buffer;
-			information->environment_changed = 1;
+			free(node->str);
+			node->str = buf;
+			info->env_changed = 1;
 			return (0);
 		}
 		node = node->next;
 	}
-	add_node_end(&(information->environment_list), buffer, 0);
-	free(buffer);
-	information->environment_changed = 1;
+	add_node_end(&(info->env), buf, 0);
+	free(buf);
+	info->env_changed = 1;
 	return (0);
 }
-

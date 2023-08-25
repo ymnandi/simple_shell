@@ -1,122 +1,122 @@
 #include "shell.h"
 
 /**
- * get_list_length - determines the length of a linked list
- * @node: pointer to the first node
+ * list_len - determines length of linked list
+ * @h: pointer to first node
  *
- * Return: size of the list
+ * Return: size of list
  */
-size_t get_list_length(const list_t *node)
+size_t list_len(const list_t *h)
 {
-	size_t length = 0;
+	size_t i = 0;
 
-	while (node)
+	while (h)
 	{
-		node = node->next;
-		length++;
+		h = h->next;
+		i++;
 	}
-	return (length);
+	return (i);
 }
 
 /**
- * convert_list_to_strings - returns an array of strings from the list->str
- * @head: pointer to the first node
+ * list_to_strings - returns an array of strings of the list->str
+ * @head: pointer to first node
  *
  * Return: array of strings
  */
-char **convert_list_to_strings(list_t *head)
+char **list_to_strings(list_t *head)
 {
-	list_t *current_node = head;
-	size_t length = get_list_length(head), i;
-	char **string_array;
-	char *string;
+	list_t *node = head;
+	size_t i = list_len(head), j;
+	char **strs;
+	char *str;
 
-	if (!head || !length)
+	if (!head || !i)
 		return (NULL);
-	string_array = malloc(sizeof(char *) * (length + 1));
-	if (!string_array)
+	strs = malloc(sizeof(char *) * (i + 1));
+	if (!strs)
 		return (NULL);
-	for (i = 0; current_node; current_node = current_node->next, i++)
+	for (i = 0; node; node = node->next, i++)
 	{
-		string = malloc(_strlen(current_node->str) + 1);
-		if (!string)
+		str = malloc(_strlen(node->str) + 1);
+		if (!str)
 		{
-			for (size_t j = 0; j < i; j++)
-				free(string_array[j]);
-			free(string_array);
+			for (j = 0; j < i; j++)
+				free(strs[j]);
+			free(strs);
 			return (NULL);
 		}
 
-		string = _strcpy(string, current_node->str);
-		string_array[i] = string;
+		str = _strcpy(str, node->str);
+		strs[i] = str;
 	}
-	string_array[i] = NULL;
-	return (string_array);
+	strs[i] = NULL;
+	return (strs);
+}
+
+
+/**
+ * print_list - prints all elements of a list_t linked list
+ * @h: pointer to first node
+ *
+ * Return: size of list
+ */
+size_t print_list(const list_t *h)
+{
+	size_t i = 0;
+
+	while (h)
+	{
+		_puts(convert_number(h->num, 10, 0));
+		_putchar(':');
+		_putchar(' ');
+		_puts(h->str ? h->str : "(nil)");
+		_puts("\n");
+		h = h->next;
+		i++;
+	}
+	return (i);
 }
 
 /**
- * display_list - prints all elements of a list_t linked list
- * @node: pointer to the first node
+ * node_starts_with - returns node whose string starts with prefix
+ * @node: pointer to list head
+ * @prefix: string to match
+ * @c: the next character after prefix to match
  *
- * Return: size of the list
+ * Return: match node or null
  */
-size_t display_list(const list_t *node)
+list_t *node_starts_with(list_t *node, char *prefix, char c)
 {
-	size_t length = 0;
+	char *p = NULL;
 
 	while (node)
 	{
-		_puts(convert_number_to_string(node->number, 10, 0));
-		_putchar(':');
-		_putchar(' ');
-		_puts(node->string ? node->string : "(nil)");
-		_puts("\n");
+		p = starts_with(node->str, prefix);
+		if (p && ((c == -1) || (*p == c)))
+			return (node);
 		node = node->next;
-		length++;
-	}
-	return (length);
-}
-
-/**
- * find_node_starts_with - returns a node whose string starts with a prefix
- * @head: pointer to the list head
- * @prefix: string to match
- * @character: the next character after the prefix to match
- *
- * Return: matching node or NULL
- */
-list_t *find_node_starts_with(list_t *head, char *prefix, char character)
-{
-	char *position = NULL;
-
-	while (head)
-	{
-		position = starts_with(head->string, prefix);
-		if (position && ((character == -1) || (*position == character)))
-			return (head);
-		head = head->next;
 	}
 	return (NULL);
 }
 
 /**
  * get_node_index - gets the index of a node
- * @head: pointer to the list head
+ * @head: pointer to list head
  * @node: pointer to the node
  *
- * Return: index of the node or -1
+ * Return: index of node or -1
  */
 ssize_t get_node_index(list_t *head, list_t *node)
 {
-	size_t index = 0;
+	size_t i = 0;
 
 	while (head)
 	{
 		if (head == node)
-			return (index);
+			return (i);
 		head = head->next;
-		index++;
+		i++;
 	}
 	return (-1);
 }
-
